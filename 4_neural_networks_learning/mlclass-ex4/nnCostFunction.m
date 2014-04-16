@@ -22,6 +22,7 @@ Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
 
+
 % Setup some useful variables
 m = size(X, 1);
          
@@ -63,22 +64,59 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
+%a2 = [ones(m, 1) sigmoid(X * Theta1')];
+
+%[maxVal p] = max(sigmoid(a2 * Theta2'), [], 2);
+
+%n = length(theta);
+
+X = [ones(m, 1) X];
+
+% ym == "y mapped" - whey yi == 6 then ymi == [0 0 0 0 0 1 0 0 0 0]
+
+no_of_digits_to_clasify = max(y);
+
+ym = zeros(m,no_of_digits_to_clasify);
+for i = 1:m
+    ym(i, y(i)) = 1;
+end
 
 
+hx = sigmoid([ones(m,1) sigmoid(X * Theta1')] * Theta2');
 
+for i = 1:m
+    J = J -ym(i,:)*log(hx(i,:))' - (1 .- ym(i,:))*log(1.-hx(i,:))';
+end
 
+% not vectorized at all
+%for i = 1:m
+%  for k = 1:no_of_digits_to_clasify 
+%    J = J -ym(i,k)*log(hx(i,k)) - (1 .- ym(i,k))*log(1.-hx(i,k));
+%  end
+%end
 
+J = J / m;
 
+% BEGIN OF REGULARIZATION
 
+Theta1droppedBiasColumn = (Theta1(:, 2:size(Theta1)(2)));
+Theta2droppedBiasColumn = (Theta2(:, 2:size(Theta2)(2)));
 
+Reg = 0;
 
+for i = 1:size(Theta1droppedBiasColumn)(1)
+  for k = 1:size(Theta1droppedBiasColumn)(2)
+    Reg = Reg + Theta1droppedBiasColumn(i,k) * Theta1droppedBiasColumn(i,k);
+  end
+end
 
+for i = 1:size(Theta2droppedBiasColumn)(1)
+  for k = 1:size(Theta2droppedBiasColumn)(2)
+    Reg = Reg + Theta2droppedBiasColumn(i,k) * Theta2droppedBiasColumn(i,k);
+  end
+end
 
-
-
-
-
-
+J = J + (lambda / (2 * m)) * Reg;
 
 % -------------------------------------------------------------
 
@@ -86,6 +124,5 @@ Theta2_grad = zeros(size(Theta2));
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
