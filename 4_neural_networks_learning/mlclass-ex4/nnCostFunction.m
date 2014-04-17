@@ -121,8 +121,34 @@ J = J + (lambda / (2 * m)) * Reg;
 % -------------------------------------------------------------
 
 % =========================================================================
-
+% back propagation algorithm
 % Unroll gradients
+
+a1 = X;
+z2 = X * Theta1';
+a2 = [ones(m,1) sigmoid(z2)];
+z3 = a2  * Theta2';
+a3 = sigmoid(z3);
+
+d3 = a3 - ym;
+
+tmp = d3 * Theta2;
+tmp = tmp(:,2:size(tmp)(2));
+d2 = tmp .* sigmoidGradient(z2);
+%d2 = d2(:, 2:size(d2)(2));
+
+D1 = d2' * a1;
+D2 = d3' * a2;
+
+Theta1_grad = D1/m;
+Theta2_grad = D2/m;
+
+% regularization
+
+Theta1_grad(:,2:size(Theta1_grad)(2)) = Theta1_grad(:,2:size(Theta1_grad)(2)) + (lambda/m) * Theta1(:,2:size(Theta1)(2));
+Theta2_grad(:,2:size(Theta2_grad)(2)) = Theta2_grad(:,2:size(Theta2_grad)(2)) + (lambda/m) * Theta2(:,2:size(Theta2)(2));
+
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 
 end
+
