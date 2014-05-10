@@ -21,11 +21,17 @@ idx = zeros(size(X,1), 1);
 % Note: You can use a for-loop over the examples to compute this.
 %
 
-
-
-
-
-
+% computing the closest centroid for each loop
+for i = 1 : size(X,1)
+  glo_min = -1;
+  for j = 1 : K
+    lo_min = sum((X(i,:) - centroids(j,:)).^2, 2);
+    if glo_min == -1 || lo_min < glo_min
+      glo_min = lo_min;
+      idx(i) = j;
+    end
+  end
+end
 
 % =============================================================
 
